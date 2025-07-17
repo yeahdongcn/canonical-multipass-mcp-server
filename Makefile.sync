@@ -1,0 +1,27 @@
+UPSTREAM=https://github.com/canonical/multipass.git
+WORKDIR=multipass/vendor
+FETCH_HEAD=878509cb60df93d5619ca9d87f2e73dcd0a332f1
+
+.PHONY: help
+help:
+	@echo "Available targets:"
+	@echo "    sync       Sync with upstream repositories"
+	@echo "    checkout   Checkout upstream repository"
+	@echo
+	@echo "Example:"
+	@echo "    make -f Makefile.sync sync"
+
+.PHONY: sync
+sync: checkout proto
+
+.PHONY: checkout
+checkout: $(WORKDIR)
+	git -C $(WORKDIR) fetch
+	git -C $(WORKDIR) checkout -f $(FETCH_HEAD)
+
+$(WORKDIR):
+	git clone $(UPSTREAM) $(WORKDIR)
+
+.PHONY: proto
+proto: multipass/vendor/src/rpc/
+	rsync -arvzc -f "merge $@/.rsync-filter" $< $@
